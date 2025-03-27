@@ -6,6 +6,7 @@ const CarpoolRideSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+
     from: {
         type: String,
         required: [true, 'Please add a starting location']
