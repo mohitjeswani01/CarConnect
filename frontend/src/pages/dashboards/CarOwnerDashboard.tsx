@@ -58,8 +58,18 @@ const CarOwnerDashboard = () => {
                 carOwnerAPI.getRentalRecords()
             ]);
 
-            setCarListings(listingsResponse.data);
-            setRentalRecords(recordsResponse.data);
+            // Ensure the data is an array
+            if (Array.isArray(listingsResponse.data)) {
+                setCarListings(listingsResponse.data);
+            } else {
+                throw new Error("Invalid data format for car listings");
+            }
+
+            if (Array.isArray(recordsResponse.data)) {
+                setRentalRecords(recordsResponse.data);
+            } else {
+                throw new Error("Invalid data format for rental records");
+            }
         } catch (error) {
             console.error("Error fetching owner data:", error);
             toast.error("Failed to load car owner data", {
@@ -67,7 +77,6 @@ const CarOwnerDashboard = () => {
             });
 
             // Fallback to sample data if API fails
-            // This is just for development/testing
             import("@/components/dashboard/car-owner/carOwnerData").then(data => {
                 setCarListings(data.carListings);
                 setRentalRecords(data.rentalRecords);
@@ -172,7 +181,7 @@ const CarOwnerDashboard = () => {
 
                                 <TabsContent value="listings">
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {carListings.map((car) => (
+                                        {carListings && carListings.map((car) => (
                                             <CarListingCard
                                                 key={car.id}
                                                 car={car}

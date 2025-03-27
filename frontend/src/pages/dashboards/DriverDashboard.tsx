@@ -58,9 +58,28 @@ const DriverDashboard = () => {
                 driverAPI.getRideHistory()
             ]);
 
-            setRideRequests(requestsResponse.data);
-            setActiveRides(activeResponse.data);
-            setPastRides(historyResponse.data);
+            console.log("Ride Requests:", requestsResponse.data);
+            console.log("Active Rides:", activeResponse.data);
+            console.log("Ride History:", historyResponse.data);
+
+            // Ensure the data is an array
+            if (Array.isArray(requestsResponse.data)) {
+                setRideRequests(requestsResponse.data);
+            } else {
+                throw new Error("Invalid data format for ride requests");
+            }
+
+            if (Array.isArray(activeResponse.data)) {
+                setActiveRides(activeResponse.data);
+            } else {
+                throw new Error("Invalid data format for active rides");
+            }
+
+            if (Array.isArray(historyResponse.data)) {
+                setPastRides(historyResponse.data);
+            } else {
+                throw new Error("Invalid data format for ride history");
+            }
         } catch (error) {
             console.error("Error fetching driver data:", error);
             toast.error("Failed to load driver data", {
@@ -68,7 +87,6 @@ const DriverDashboard = () => {
             });
 
             // Fallback to sample data if API fails
-            // This is just for development/testing
             import("@/components/dashboard/driver/driverData").then(data => {
                 setRideRequests(data.rideRequests);
                 setActiveRides(data.activeRides);
