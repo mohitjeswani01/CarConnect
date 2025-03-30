@@ -10,6 +10,13 @@ import { useAuth } from "@/context/AuthContext";
 
 const Contact = () => {
     const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem("userData");
+        toast.success("Logged out successfully");
+        navigate("/login");
+    };
+
     const { isAuthenticated } = useAuth();
 
     useEffect(() => {
@@ -48,7 +55,7 @@ const Contact = () => {
             variants={pageVariants}
             transition={{ duration: 0.5 }}
         >
-            <Navbar />
+            <Navbar onLogout={handleLogout} />
             <div className="pt-24 bg-blue-50 dark:bg-gray-900">
                 <div className="container mx-auto px-4 py-16">
                     <div className="text-center max-w-3xl mx-auto">

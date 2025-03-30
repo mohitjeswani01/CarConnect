@@ -8,8 +8,17 @@ import CarShowcase from "@/components/home/car-showcase";
 import TestimonialsSection from "@/components/home/testimonials-section";
 import CTASection from "@/components/home/cta-section";
 import SOSButton from "@/components/sos-button";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem("userData");
+        toast.success("Logged out successfully");
+        navigate("/login");
+    };
     // Page transition
     const pageVariants = {
         initial: {
@@ -31,7 +40,7 @@ const Index = () => {
             variants={pageVariants}
             transition={{ duration: 0.5 }}
         >
-            <Navbar />
+            <Navbar onLogout={handleLogout} />
             <main className="overflow-hidden">
                 <HeroSection />
                 <ServicesSection />

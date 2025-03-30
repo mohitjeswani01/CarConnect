@@ -4,8 +4,18 @@ import Navbar from "@/components/ui/navbar";
 import Footer from "@/components/ui/footer";
 import AuthForm from "@/components/auth/auth-form";
 import SOSButton from "@/components/sos-button";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+
 
 const Signup = () => {
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem("userData");
+        toast.success("Logged out successfully");
+        navigate("/login");
+    };
     // Page transition
     const pageVariants = {
         initial: {
@@ -27,7 +37,7 @@ const Signup = () => {
             variants={pageVariants}
             transition={{ duration: 0.5 }}
         >
-            <Navbar />
+            <Navbar onLogout={handleLogout} />
             <div className="pt-24">
                 <div className="container mx-auto px-4 py-16">
                     <div className="text-center max-w-3xl mx-auto mb-10">

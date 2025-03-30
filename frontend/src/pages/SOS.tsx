@@ -4,10 +4,17 @@ import { Phone, LocateFixed, AlertCircle, MapPin, ArrowLeft } from "lucide-react
 import Navbar from "@/components/ui/navbar";
 import Footer from "@/components/ui/footer";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const SOS = () => {
+    const handleLogout = () => {
+        const navigate = useNavigate();
+        localStorage.removeItem("userData");
+        toast.success("Logged out successfully");
+        navigate("/login");
+    };
+
     const handleEmergencyCall = () => {
         toast.success("Emergency call initiated", {
             description: "Help is on the way. Stay calm and safe.",
@@ -41,7 +48,7 @@ const SOS = () => {
             variants={pageVariants}
             transition={{ duration: 0.5 }}
         >
-            <Navbar />
+            <Navbar onLogout={handleLogout} />
             <div className="bg-red-50 dark:bg-red-900/20 pt-24">
                 <div className="container mx-auto px-4 py-12">
                     <Link to="/" className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 mb-6">
