@@ -55,6 +55,28 @@ API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Debug interceptor
+API.interceptors.request.use((request) => {
+  console.log("Request:", request.method, request.url);
+  console.log("Headers:", request.headers);
+  return request;
+});
+
+API.interceptors.response.use(
+  (response) => {
+    console.log("Response Status:", response.status);
+    return response;
+  },
+  (error) => {
+    console.error(
+      "API Error Response:",
+      error.response?.status,
+      error.response?.data
+    );
+    return Promise.reject(error);
+  }
+);
+
 // Response interceptor with proper typing
 API.interceptors.response.use(
   (response: any) => response,
@@ -71,7 +93,7 @@ API.interceptors.response.use(
     return Promise.reject({
       ...errorData,
       status: statusCode,
-    });
+    }) as Promise<any>;
   }
 );
 
@@ -96,25 +118,69 @@ export const carOwnerAPI = {
     return API.get("/car-owner/listings");
   },
 
-  addCar: (carData: FormData): Promise<any> => {
-    return API.post("/car-owner/cars", carData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+  addCar: async (carData: FormData) => {
+    // Log the form data for debugging
+    console.log("API call - addCar form data:");
+    for (let [key, value] of carData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+
+    // Ensure authentication headers are added but don't override content-type
+    const userData = localStorage.getItem("userData");
+    const headers: any = {};
+
+    if (userData) {
+      const { token } = JSON.parse(userData);
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+    }
+
+    // Make the API call with explicit content-type and auth headers
+    const res = await axios.post(
+      "http://localhost:5050/api/car-owner/cars",
+      carData,
+      {
+        headers: {
+          ...headers,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    console.log(res.data);
   },
 
-  toggleCarAvailability: (carId: number): Promise<any> => {
+  toggleCarAvailability: (carId: string): Promise<any> => {
     return API.patch(`/car-owner/cars/${carId}/toggle-availability`);
   },
 
   getRentalRecords: (): Promise<any> => {
     return API.get("/car-owner/rental-records");
   },
+
+  updateCar: (carId: string, carData: FormData): Promise<any> => {
+    return API.put(`/car-owner/cars/${carId}`, carData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
+
+  deleteCar: (carId: string): Promise<any> => {
+    return API.delete(`/car-owner/cars/${carId}`);
+  },
+
+  getCarDetails: (carId: string): Promise<any> => {
+    return API.get(`/car-owner/cars/${carId}`);
+  },
 };
 
 // Driver API
 export const driverAPI = {
+  getDriverProfile: (): Promise<any> => {
+    return API.get("/driver/profile");
+  },
+
   getRideRequests: (): Promise<any> => {
     return API.get("/driver/ride-requests");
   },
@@ -127,16 +193,67 @@ export const driverAPI = {
     return API.get("/driver/ride-history");
   },
 
-  acceptRide: (requestId: number): Promise<any> => {
+  acceptRide: (requestId: string): Promise<any> => {
     return API.post(`/driver/ride-requests/${requestId}/accept`);
   },
 
-  rejectRide: (requestId: number): Promise<any> => {
+  rejectRide: (requestId: string): Promise<any> => {
     return API.post(`/driver/ride-requests/${requestId}/reject`);
   },
 
   toggleAvailability: (isAvailable: boolean): Promise<any> => {
     return API.patch("/driver/toggle-availability", { isAvailable });
+  },
+
+  endRide: (rideId: string): Promise<any> => {
+    return API.post(`/driver/rides/${rideId}/complete`);
+  },
+
+  getNotifications: (): Promise<any> => {
+    return API.get("/driver/notifications");
+  },
+
+  markNotificationAsRead: (notificationId: string): Promise<any> => {
+    return API.patch(`/driver/notifications/${notificationId}`);
+  },
+
+  createUpdateProfile: (profileData: any): Promise<any> => {
+    return API.post("/driver/profile", profileData);
+  },
+};
+
+// Car Renter API
+export const carRenterAPI = {
+  searchCars: (location?: string, category?: string): Promise<any> => {
+    const params = new URLSearchParams();
+    if (location) params.append("location", location);
+    if (category) params.append("category", category);
+
+    return API.get(`/car-renter/search?${params.toString()}`);
+  },
+
+  getBookings: (): Promise<any> => {
+    return API.get("/car-renter/bookings");
+  },
+
+  bookCar: (carId: string, bookingData: any): Promise<any> => {
+    return API.post(`/car-renter/cars/${carId}/book`, bookingData);
+  },
+
+  cancelBooking: (bookingId: string): Promise<any> => {
+    return API.post(`/car-renter/bookings/${bookingId}/cancel`);
+  },
+
+  extendBooking: (bookingId: string, extendData: any): Promise<any> => {
+    return API.post(`/car-renter/bookings/${bookingId}/extend`, extendData);
+  },
+
+  getNotifications: (): Promise<any> => {
+    return API.get("/car-renter/notifications");
+  },
+
+  markNotificationAsRead: (notificationId: string): Promise<any> => {
+    return API.patch(`/car-renter/notifications/${notificationId}`);
   },
 };
 
@@ -164,6 +281,29 @@ export const carpoolAPI = {
 
   cancelRideBooking: (rideId: string): Promise<any> => {
     return API.post(`/carpool/rides/${rideId}/cancel`);
+  },
+};
+
+// Notifications API
+export const notificationAPI = {
+  getUserNotifications: (userId: string): Promise<any> => {
+    return API.get(`/notifications/user/${userId}`);
+  },
+
+  markAsRead: (notificationId: string): Promise<any> => {
+    return API.patch(`/notifications/${notificationId}/read`);
+  },
+
+  markAllAsRead: (): Promise<any> => {
+    return API.patch("/notifications/mark-all-read");
+  },
+
+  getUnreadCount: (): Promise<any> => {
+    return API.get("/notifications/unread-count");
+  },
+
+  deleteNotification: (notificationId: string): Promise<any> => {
+    return API.delete(`/notifications/${notificationId}`);
   },
 };
 

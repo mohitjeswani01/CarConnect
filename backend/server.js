@@ -27,10 +27,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/car-owner", carOwnerRoutes);
-app.use("/api/driver", driverRoutes);
-app.use("/api/carpool", carpoolRoutes);
+app.use("/api/auth", require("./routes/auth.routes"));
+app.use("/api/car-owner", require("./routes/carOwner.routes"));
+app.use("/api/driver", require("./routes/driver.routes"));
+app.use("/api/carpool", require("./routes/carpool.routes"));
+app.use("/api/car-renter", require("./routes/carRenter.routes"));
+app.use("/api/notifications", require("./routes/notification.routes")); // Add this line
 
 // Root route
 app.get("/", (req, res) => {

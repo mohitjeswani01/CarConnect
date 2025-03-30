@@ -1,99 +1,84 @@
 export const rideRequests = [
-    {
-        id: 201,
-        renterName: "Aarav Sharma",
-        renterPhone: "+91 9876543210",
-        carModel: "Maruti Swift",
-        category: "Hatchback",
-        pickupLocation: "Connaught Place, Delhi",
-        startDate: "2023-10-25",
-        duration: "3 days",
-        status: "Pending",
-    },
-    {
-        id: 202,
-        renterName: "Meera Patel",
-        renterPhone: "+91 9876123456",
-        carModel: "Toyota Innova",
-        category: "MPV",
-        pickupLocation: "Bandra, Mumbai",
-        startDate: "2023-10-30",
-        duration: "2 days",
-        status: "Pending",
-    },
+  {
+    id: "req1",
+    carModel: "Honda City",
+    renterName: "Amit Kumar",
+    renterPhone: "+91 98765 43210",
+    pickupLocation: "Connaught Place, Delhi",
+    dropoffLocation: "Sector 62, Noida",
+    startDate: "2023-10-20",
+    endDate: "2023-10-22",
+    estimatedEarnings: 1500,
+  },
+  {
+    id: "req2",
+    carModel: "Maruti Swift",
+    renterName: "Priya Sharma",
+    renterPhone: "+91 87654 32109",
+    pickupLocation: "MG Road, Bangalore",
+    dropoffLocation: "Electronic City, Bangalore",
+    startDate: "2023-10-25",
+    endDate: "2023-10-27",
+    estimatedEarnings: 1200,
+  },
 ];
 
-// Sample data for active rides
 export const activeRides = [
-    {
-        id: 301,
-        renterName: "Vishal Kumar",
-        renterPhone: "+91 9811234567",
-        carModel: "Honda City",
-        category: "Sedan",
-        pickupLocation: "MG Road, Bangalore",
-        startDate: "2023-10-20",
-        endDate: "2023-10-23",
-        status: "Active",
-    },
+  {
+    id: "ride1",
+    carModel: "Toyota Innova",
+    renterName: "Rahul Verma",
+    renterPhone: "+91 76543 21098",
+    pickupLocation: "Juhu Beach, Mumbai",
+    dropoffLocation: "Pune City Center",
+    startDate: "2023-10-18",
+    endDate: "2023-10-21",
+    status: "Active",
+    earnings: 3000,
+  },
 ];
 
-// Sample data for past rides
 export const pastRides = [
-    {
-        id: 401,
-        renterName: "Kavita Singh",
-        carModel: "Hyundai Creta",
-        category: "SUV",
-        location: "Jaipur, Rajasthan",
-        date: "2023-10-01 to 2023-10-05",
-        earnings: 4000,
-        rating: 4.8,
-    },
-    {
-        id: 402,
-        renterName: "Mohan Desai",
-        carModel: "Maruti Swift",
-        category: "Hatchback",
-        location: "Pune, Maharashtra",
-        date: "2023-09-15 to 2023-09-18",
-        earnings: 2400,
-        rating: 4.5,
-    },
+  {
+    id: "past1",
+    carModel: "Hyundai Verna",
+    renterName: "Neha Singh",
+    date: "2023-09-15",
+  },
 ];
 
 // Types for ride data
 export interface RideRequest {
-    id: number;
-    renterName: string;
-    renterPhone: string;
-    carModel: string;
-    category: string;
-    pickupLocation: string;
-    startDate: string;
-    duration: string;
-    status: string;
+  id: string;
+  carModel: string;
+  renterName: string;
+  renterPhone: string;
+  pickupLocation: string;
+  dropoffLocation: string;
+  startDate: string;
+  endDate: string;
+  estimatedEarnings: number;
 }
 
 export interface ActiveRide {
-    id: number;
-    renterName: string;
-    renterPhone: string;
-    carModel: string;
-    category: string;
-    pickupLocation: string;
-    startDate: string;
-    endDate: string;
-    status: string;
+  id: string;
+  carModel: string;
+  renterName: string;
+  renterPhone: string;
+  pickupLocation: string;
+  dropoffLocation: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  earnings: number;
 }
 
 export interface PastRide {
-    id: number;
-    renterName: string;
-    carModel: string;
-    category: string;
-    location: string;
-    date: string;
-    earnings: number;
-    rating: number;
+  id: string;
+  carModel: string;
+  renterName: string;
+  date: string;
+  earnings?: number;
+  rating?: number;
+  status?: string;
 }

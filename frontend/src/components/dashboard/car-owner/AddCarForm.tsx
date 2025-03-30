@@ -2,219 +2,281 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Car, MapPin, Plus } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
 interface AddCarFormProps {
-    onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (e: React.FormEvent) => void;
 }
 
 const AddCarForm: React.FC<AddCarFormProps> = ({ onSubmit }) => {
-    const [availableDate, setAvailableDate] = useState<Date>();
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
+  const handleFeatureChange = (feature: string) => {
+    if (selectedFeatures.includes(feature)) {
+      setSelectedFeatures(selectedFeatures.filter((f) => f !== feature));
+    } else {
+      setSelectedFeatures([...selectedFeatures, feature]);
+    }
+  };
 
-        try {
-            await onSubmit(e);
-            // Clear form after successful submission
-            setAvailableDate(undefined);
-            const form = e.target as HTMLFormElement;
-            form.reset();
-        } catch (error) {
-            console.error("Error in form submission:", error);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
 
-    return (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 max-w-2xl mx-auto">
-            <h3 className="text-xl font-semibold mb-6">Add a New Car</h3>
-            <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="carModel">Car Model</Label>
-                        <div className="relative">
-                            <Car className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                id="carModel"
-                                name="carModel"
-                                placeholder="e.g., Maruti Suzuki Swift"
-                                className="pl-10"
-                                required
-                            />
-                        </div>
-                    </div>
+      // Create a preview URL
+      const fileUrl = URL.createObjectURL(file);
+      setPreviewUrl(fileUrl);
+    }
+  };
 
-                    <div className="space-y-2">
-                        <Label htmlFor="category">Category</Label>
-                        <select
-                            id="category"
-                            name="category"
-                            className="w-full rounded-md border border-input py-2 px-3 bg-background ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                            required
-                        >
-                            <option value="">Select Category</option>
-                            <option value="hatchback">Hatchback</option>
-                            <option value="sedan">Sedan</option>
-                            <option value="suv">SUV</option>
-                            <option value="luxury">Luxury</option>
-                        </select>
-                    </div>
-                </div>
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="price">Price (₹)</Label>
-                        <Input
-                            id="price"
-                            name="price"
-                            type="number"
-                            placeholder="Price per day"
-                            required
-                        />
-                    </div>
+    // Form validation
+    const form = e.target as HTMLFormElement;
+    const make = form.make.value;
+    const model = form.model.value;
+    const year = form.year.value;
+    const price = form.pricePerDay.value;
 
-                    <div className="space-y-2">
-                        <Label htmlFor="location">Location</Label>
-                        <div className="relative">
-                            <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                id="location"
-                                name="location"
-                                placeholder="e.g., Delhi, India"
-                                className="pl-10"
-                                required
-                            />
-                        </div>
-                    </div>
-                </div>
+    if (!make || !model || !year || !price) {
+      toast.error("Please fill all required fields");
+      return;
+    }
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="transmission">Transmission</Label>
-                        <select
-                            id="transmission"
-                            name="transmission"
-                            className="w-full rounded-md border border-input py-2 px-3 bg-background ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                            required
-                        >
-                            <option value="">Select Transmission</option>
-                            <option value="manual">Manual</option>
-                            <option value="automatic">Automatic</option>
-                        </select>
-                    </div>
+    if (!selectedFile) {
+      toast.error("Please upload at least one photo of your car");
+      return;
+    }
 
-                    <div className="space-y-2">
-                        <Label htmlFor="fuelType">Fuel Type</Label>
-                        <select
-                            id="fuelType"
-                            name="fuelType"
-                            className="w-full rounded-md border border-input py-2 px-3 bg-background ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                            required
-                        >
-                            <option value="">Select Fuel Type</option>
-                            <option value="petrol">Petrol</option>
-                            <option value="diesel">Diesel</option>
-                            <option value="cng">CNG</option>
-                            <option value="electric">Electric</option>
-                        </select>
-                    </div>
-                </div>
+    // Create the FormData object from the form
+    const formData = new FormData(form);
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="seats">Number of Seats</Label>
-                        <Input
-                            id="seats"
-                            name="seats"
-                            type="number"
-                            placeholder="e.g., 5"
-                            required
-                        />
-                    </div>
+    // Add features as separate items for backend processing
+    if (selectedFeatures.length > 0) {
+      formData.delete("features"); // Remove any existing features field
+      selectedFeatures.forEach((feature) => {
+        formData.append("features", feature);
+      });
+    }
 
-                    <div className="space-y-2">
-                        <Label htmlFor="mileage">Mileage (km/l)</Label>
-                        <Input
-                            id="mileage"
-                            name="mileage"
-                            placeholder="e.g., 21"
-                            required
-                        />
-                    </div>
-                </div>
+    // Call the onSubmit prop with the event
+    onSubmit(e);
 
-                <div className="space-y-2">
-                    <Label htmlFor="carImage">Car Image</Label>
-                    <Input
-                        id="carImage"
-                        name="carImage"
-                        type="file"
-                        accept="image/*"
-                        required
-                    />
-                </div>
+    // Clean up preview URL
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+    setSelectedFile(null);
+  };
 
-                <div className="space-y-2">
-                    <Label>Available From</Label>
-                    <input
-                        type="hidden"
-                        name="availableDate"
-                        value={availableDate ? format(availableDate, 'yyyy-MM-dd') : ''}
-                    />
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                className={cn(
-                                    "w-full justify-start text-left font-normal",
-                                    !availableDate && "text-muted-foreground"
-                                )}
-                            >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {availableDate ? format(availableDate, "PPP") : <span>Select a date</span>}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                                mode="single"
-                                selected={availableDate}
-                                onSelect={setAvailableDate}
-                                initialFocus
-                            />
-                        </PopoverContent>
-                    </Popover>
-                </div>
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 max-w-2xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-xl shadow"
+    >
+      <div className="text-xl font-semibold mb-4">Add New Car</div>
 
-                <Button
-                    type="submit"
-                    className="w-full h-11 font-medium transition-all hover:shadow-md text-base"
-                    disabled={isSubmitting}
-                >
-                    {isSubmitting ? (
-                        <span className="flex items-center">
-                            <span className="animate-spin mr-2 h-4 w-4 border-t-2 border-b-2 border-white rounded-full"></span>
-                            Processing...
-                        </span>
-                    ) : (
-                        <>
-                            <Plus size={16} className="mr-2" />
-                            Add Car to Listings
-                        </>
-                    )}
-                </Button>
-            </form>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Make */}
+        <div className="space-y-2">
+          <Label htmlFor="make">Make *</Label>
+          <Input id="make" name="make" placeholder="e.g. Toyota" required />
         </div>
-    );
+
+        {/* Model */}
+        <div className="space-y-2">
+          <Label htmlFor="model">Model *</Label>
+          <Input id="model" name="model" placeholder="e.g. Innova" required />
+        </div>
+
+        {/* Year */}
+        <div className="space-y-2">
+          <Label htmlFor="year">Year *</Label>
+          <Input
+            id="year"
+            name="year"
+            type="number"
+            placeholder="e.g. 2020"
+            min="1990"
+            max={new Date().getFullYear()}
+            required
+          />
+        </div>
+
+        {/* Color */}
+        <div className="space-y-2">
+          <Label htmlFor="color">Color</Label>
+          <Input id="color" name="color" placeholder="e.g. White" />
+        </div>
+
+        {/* License Plate */}
+        <div className="space-y-2">
+          <Label htmlFor="licensePlate">License Plate</Label>
+          <Input
+            id="licensePlate"
+            name="licensePlate"
+            placeholder="e.g. DL 01 AB 1234"
+          />
+        </div>
+
+        {/* Price Per Day */}
+        <div className="space-y-2">
+          <Label htmlFor="pricePerDay">Price Per Day (₹) *</Label>
+          <Input
+            id="pricePerDay"
+            name="pricePerDay"
+            type="number"
+            placeholder="e.g. 1500"
+            min="100"
+            required
+          />
+        </div>
+
+        {/* Location */}
+        <div className="space-y-2">
+          <Label htmlFor="location">Location</Label>
+          <Input id="location" name="location" placeholder="e.g. Delhi" />
+        </div>
+
+        {/* Category */}
+        <div className="space-y-2">
+          <Label htmlFor="category">Category</Label>
+          <select
+            id="category"
+            name="category"
+            className="w-full h-10 rounded-md border border-input px-3 py-2 bg-background ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <option value="Hatchback">Hatchback</option>
+            <option value="Sedan">Sedan</option>
+            <option value="SUV">SUV</option>
+            <option value="MPV">MPV</option>
+            <option value="Luxury">Luxury</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Description */}
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          name="description"
+          placeholder="Describe your car..."
+          rows={4}
+        />
+      </div>
+
+      {/* Features */}
+      <div className="space-y-2">
+        <Label>Features</Label>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="automatic"
+              checked={selectedFeatures.includes("Automatic")}
+              onCheckedChange={() => handleFeatureChange("Automatic")}
+            />
+            <label htmlFor="automatic">Automatic</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="manual"
+              checked={selectedFeatures.includes("Manual")}
+              onCheckedChange={() => handleFeatureChange("Manual")}
+            />
+            <label htmlFor="manual">Manual</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="petrol"
+              checked={selectedFeatures.includes("Petrol")}
+              onCheckedChange={() => handleFeatureChange("Petrol")}
+            />
+            <label htmlFor="petrol">Petrol</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="diesel"
+              checked={selectedFeatures.includes("Diesel")}
+              onCheckedChange={() => handleFeatureChange("Diesel")}
+            />
+            <label htmlFor="diesel">Diesel</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="ac"
+              checked={selectedFeatures.includes("AC")}
+              onCheckedChange={() => handleFeatureChange("AC")}
+            />
+            <label htmlFor="ac">AC</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="seats5"
+              checked={selectedFeatures.includes("5 seats")}
+              onCheckedChange={() => handleFeatureChange("5 seats")}
+            />
+            <label htmlFor="seats5">5 Seats</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="seats7"
+              checked={selectedFeatures.includes("7 seats")}
+              onCheckedChange={() => handleFeatureChange("7 seats")}
+            />
+            <label htmlFor="seats7">7 Seats</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="mileage"
+              checked={selectedFeatures.includes("15 km/l mileage")}
+              onCheckedChange={() => handleFeatureChange("15 km/l mileage")}
+            />
+            <label htmlFor="mileage">15 km/l Mileage</label>
+          </div>
+        </div>
+      </div>
+
+      {/* Photo Upload */}
+      <div className="space-y-2">
+        <Label htmlFor="photos">Car Photos *</Label>
+        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 p-4 rounded-md">
+          <Input
+            id="photos"
+            name="photos"
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="mb-2"
+            required
+          />
+          {previewUrl && (
+            <div className="relative w-full h-40 mt-2">
+              <img
+                src={previewUrl}
+                alt="Car preview"
+                className="w-full h-full object-contain rounded-md"
+              />
+            </div>
+          )}
+          <p className="text-sm text-muted-foreground mt-2">
+            Upload at least one photo of your car. Max size: 5MB.
+          </p>
+        </div>
+      </div>
+
+      <Button type="submit" className="w-full">
+        Add Car
+      </Button>
+    </form>
+  );
 };
 
 export default AddCarForm;
