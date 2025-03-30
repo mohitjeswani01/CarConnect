@@ -10,15 +10,31 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 
 interface SearchRideFormProps {
-    onSearch: () => void;
+    onSearch: (formData: { from: string; to: string; date: string }) => void;
 }
 
 const SearchRideForm = ({ onSearch }: SearchRideFormProps) => {
     const [date, setDate] = React.useState<Date>();
+    const [formData, setFormData] = React.useState({
+        from: "",
+        to: "",
+        date: "",
+    });
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { id, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [id]: value,
+        }));
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSearch();
+        onSearch({
+            ...formData,
+            date: date ? format(date, "PPP") : "",
+        });
     };
 
     return (
@@ -32,34 +48,38 @@ const SearchRideForm = ({ onSearch }: SearchRideFormProps) => {
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <Label htmlFor="search-from">From</Label>
+                        <Label htmlFor="from">From</Label>
                         <div className="relative">
                             <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                             <Input
-                                id="search-from"
+                                id="from"
                                 placeholder="Starting location"
                                 className="pl-10 premium-input"
                                 required
+                                value={formData.from}
+                                onChange={handleInputChange}
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="search-to">To</Label>
+                        <Label htmlFor="to">To</Label>
                         <div className="relative">
                             <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                             <Input
-                                id="search-to"
+                                id="to"
                                 placeholder="Destination"
                                 className="pl-10 premium-input"
                                 required
+                                value={formData.to}
+                                onChange={handleInputChange}
                             />
                         </div>
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="search-date">Date</Label>
+                    <Label htmlFor="date">Date</Label>
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button

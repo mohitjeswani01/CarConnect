@@ -1,68 +1,75 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const CarpoolRideSchema = new mongoose.Schema({
+const CarpoolRideSchema = new mongoose.Schema(
+  {
     driver: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-
     from: {
-        type: String,
-        required: [true, 'Please add a starting location']
+      type: String,
+      required: [true, "Please specify departure location"],
     },
     to: {
-        type: String,
-        required: [true, 'Please add a destination']
+      type: String,
+      required: [true, "Please specify destination"],
     },
     date: {
-        type: Date,
-        required: [true, 'Please add a date']
-    },
-    time: {
-        type: String,
-        required: [true, 'Please add a time']
-    },
-    price: {
-        type: Number,
-        required: [true, 'Please add a price']
-    },
-    seats: {
-        type: Number,
-        required: [true, 'Please add number of available seats'],
-        min: [1, 'Must have at least 1 seat']
+      type: Date,
+      required: [true, "Please specify date and time"],
     },
     availableSeats: {
-        type: Number
+      type: Number,
+      required: [true, "Please specify available seats"],
+      min: [1, "At least one seat must be available"],
     },
-    car: {
-        type: String,
-        required: [true, 'Please add car details']
+    pricePerSeat: {
+      type: Number,
+      required: [true, "Please specify price per seat"],
     },
-    notes: String,
-    passengers: [{
+    carDetails: {
+      type: String,
+      default: "Not specified",
+    },
+    additionalInfo: {
+      type: String,
+      default: "",
+    },
+    passengers: [
+      {
         user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        pickupPoint: {
+          type: String,
+          default: "",
         },
         status: {
-            type: String,
-            enum: ['pending', 'confirmed', 'cancelled'],
-            default: 'pending'
-        }
-    }],
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
+          type: String,
+          enum: ["confirmed", "cancelled"],
+          default: "confirmed",
+        },
+      },
+    ],
+    status: {
+      type: String,
+      enum: ["active", "completed", "cancelled"],
+      default: "active",
+    },
+  },
+  { timestamps: true }
+);
+
+// Set virtual for total bookings
+CarpoolRideSchema.virtual("totalBookings").get(function () {
+  return this.passengers.length;
 });
 
-// Set availableSeats equal to seats when creating a new ride
-CarpoolRideSchema.pre('save', function (next) {
-    if (this.isNew) {
-        this.availableSeats = this.seats;
-    }
-    next();
-});
+// Enable virtuals in JSON
+CarpoolRideSchema.set("toJSON", { virtuals: true });
+CarpoolRideSchema.set("toObject", { virtuals: true });
 
-module.exports = mongoose.model('CarpoolRide', CarpoolRideSchema);
+module.exports = mongoose.model("CarpoolRide", CarpoolRideSchema);
