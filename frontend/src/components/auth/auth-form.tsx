@@ -105,6 +105,30 @@ const AuthForm = ({ type }: AuthFormProps) => {
         setError("");
     };
 
+    const renderUserTypeRadioGroup = () => (
+        <div className="space-y-3">
+            <Label>User Type</Label>
+            <RadioGroup
+                defaultValue={userType}
+                onValueChange={setUserType}
+                className="flex flex-col space-y-1"
+            >
+                <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="renter" id="renter" />
+                    <Label htmlFor="renter" className="cursor-pointer">Car Renter</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="owner" id="owner" />
+                    <Label htmlFor="owner" className="cursor-pointer">Car Owner</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="driver" id="driver" />
+                    <Label htmlFor="driver" className="cursor-pointer">Driver</Label>
+                </div>
+            </RadioGroup>
+        </div>
+    );
+
     return (
         <div className="w-full max-w-md mx-auto p-8">
             <div className="text-center mb-8">
@@ -181,79 +205,63 @@ const AuthForm = ({ type }: AuthFormProps) => {
                     </div>
                 </div>
 
-                {!isLogin && (
+                {/* User Type Selection */}
+                {type === "carRental" && (
                     <>
-                        {type === "carRental" && (
-                            <div className="space-y-3">
-                                <Label>User Type</Label>
-                                <RadioGroup
-                                    defaultValue={userType}
-                                    onValueChange={setUserType}
-                                    className="flex flex-col space-y-1"
-                                >
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="renter" id="renter" />
-                                        <Label htmlFor="renter" className="cursor-pointer">Car Renter</Label>
+                        {isLogin ? (
+                            renderUserTypeRadioGroup()
+                        ) : (
+                            <>
+                                {renderUserTypeRadioGroup()}
+                                {userType === "owner" && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="address">Address</Label>
+                                        <div className="relative">
+                                            <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                            <Input
+                                                id="address"
+                                                placeholder="123 Main St, City"
+                                                className="pl-10 premium-input"
+                                                value={formData.address}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="owner" id="owner" />
-                                        <Label htmlFor="owner" className="cursor-pointer">Car Owner</Label>
+                                )}
+
+                                {(userType === "driver" || userType === "owner") && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="phone">Phone Number</Label>
+                                        <div className="relative">
+                                            <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                            <Input
+                                                id="phone"
+                                                type="tel"
+                                                placeholder="+1 (555) 000-0000"
+                                                className="pl-10 premium-input"
+                                                value={formData.phone}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="driver" id="driver" />
-                                        <Label htmlFor="driver" className="cursor-pointer">Driver</Label>
+                                )}
+
+                                {userType === "driver" && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="license">Driver's License</Label>
+                                        <div className="relative">
+                                            <Car className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                            <Input
+                                                id="license"
+                                                placeholder="License Number"
+                                                className="pl-10 premium-input"
+                                                value={formData.license}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
                                     </div>
-                                </RadioGroup>
-                            </div>
-                        )}
-
-                        {userType === "owner" && (
-                            <div className="space-y-2">
-                                <Label htmlFor="address">Address</Label>
-                                <div className="relative">
-                                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        id="address"
-                                        placeholder="123 Main St, City"
-                                        className="pl-10 premium-input"
-                                        value={formData.address}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {(userType === "driver" || userType === "owner") && (
-                            <div className="space-y-2">
-                                <Label htmlFor="phone">Phone Number</Label>
-                                <div className="relative">
-                                    <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        id="phone"
-                                        type="tel"
-                                        placeholder="+1 (555) 000-0000"
-                                        className="pl-10 premium-input"
-                                        value={formData.phone}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {userType === "driver" && (
-                            <div className="space-y-2">
-                                <Label htmlFor="license">Driver's License</Label>
-                                <div className="relative">
-                                    <Car className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        id="license"
-                                        placeholder="License Number"
-                                        className="pl-10 premium-input"
-                                        value={formData.license}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
+                                )}
+                            </>
                         )}
                     </>
                 )}
