@@ -144,10 +144,10 @@ const CarRenterDashboard = () => {
           booking.status === "active"
             ? "Active"
             : new Date(booking.startDate) > new Date()
-            ? "Upcoming"
-            : booking.status === "completed"
-            ? "Completed"
-            : booking.status,
+              ? "Upcoming"
+              : booking.status === "completed"
+                ? "Completed"
+                : booking.status,
         withDriver: booking.withDriver,
         image:
           booking.car?.photos && booking.car.photos.length > 0
@@ -300,6 +300,7 @@ const CarRenterDashboard = () => {
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
         withDriver,
+        status: "pending", // Set the status to pending
       };
 
       console.log("Booking data:", bookingData);
@@ -307,10 +308,10 @@ const CarRenterDashboard = () => {
       const response = await carRenterAPI.bookCar(carId, bookingData);
       console.log("Booking response:", response.data);
 
-      toast.success(`Car booked successfully!`, {
+      toast.success(`Car booking requested successfully!`, {
         description: withDriver
-          ? "Your car with driver will be available at the selected time."
-          : "Your car will be available for pickup at the selected time.",
+          ? "Your request for a car with driver has been sent to the owner."
+          : "Your request for a car without driver has been sent to the owner.",
       });
 
       // Refresh bookings
@@ -576,8 +577,8 @@ const CarRenterDashboard = () => {
                                 booking.status === "Active"
                                   ? "default"
                                   : booking.status === "Upcoming"
-                                  ? "outline"
-                                  : "secondary"
+                                    ? "outline"
+                                    : "secondary"
                               }
                             >
                               {booking.status}
@@ -616,13 +617,13 @@ const CarRenterDashboard = () => {
                           <div className="flex gap-3">
                             {(booking.status === "Active" ||
                               booking.status === "Upcoming") && (
-                              <Button
-                                variant="destructive"
-                                onClick={() => handleCancelBooking(booking.id)}
-                              >
-                                Cancel Booking
-                              </Button>
-                            )}
+                                <Button
+                                  variant="destructive"
+                                  onClick={() => handleCancelBooking(booking.id)}
+                                >
+                                  Cancel Booking
+                                </Button>
+                              )}
                             {booking.status === "Active" && (
                               <Button
                                 variant="outline"

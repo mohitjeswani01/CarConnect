@@ -26,7 +26,8 @@ const PostRideForm = () => {
   const [formData, setFormData] = useState({
     from: "",
     to: "",
-    date: "",
+    time: "",
+    timePeriod: "AM", // Added timePeriod field
     availableSeats: 1,
     pricePerSeat: 0,
     carDetails: "",
@@ -46,11 +47,19 @@ const PostRideForm = () => {
     }));
   };
 
+  const handleTimePeriodChange = (period: "AM" | "PM") => {
+    setFormData((prev) => ({
+      ...prev,
+      timePeriod: period,
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const submissionData = {
       ...formData,
-      date: date || formData.date,
+      date: date,
+      fullTime: `${formData.time} ${formData.timePeriod}`, // Combined time display
     };
     console.log(submissionData);
     toast.success("Ride posted successfully!", {
@@ -100,6 +109,7 @@ const PostRideForm = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Date Picker */}
           <div className="space-y-2">
             <Label htmlFor="date">Date</Label>
             <Popover>
@@ -121,24 +131,44 @@ const PostRideForm = () => {
                   selected={date}
                   onSelect={setDate}
                   initialFocus
-                  className="p-3 pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
           </div>
 
+          {/* Time Input with AM/PM */}
           <div className="space-y-2">
-            <Label htmlFor="time">Time</Label>
-            <div className="relative">
-              <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="time"
-                type="time"
-                className="pl-10 premium-input"
-                required
-                value={formData.date}
-                onChange={handleChange}
-              />
+            <Label>Time</Label>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="time"
+                  type="time"
+                  className="pl-10 premium-input"
+                  required
+                  value={formData.time}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="flex gap-1">
+                <Button
+                  type="button"
+                  variant={formData.timePeriod === "AM" ? "default" : "outline"}
+                  className="px-4"
+                  onClick={() => handleTimePeriodChange("AM")}
+                >
+                  AM
+                </Button>
+                <Button
+                  type="button"
+                  variant={formData.timePeriod === "PM" ? "default" : "outline"}
+                  className="px-4"
+                  onClick={() => handleTimePeriodChange("PM")}
+                >
+                  PM
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -187,7 +217,7 @@ const PostRideForm = () => {
               type="number"
               min="0"
               step="0.01"
-              placeholder="Price in $"
+              placeholder="Price in ₹"
               className="pl-10 premium-input"
               required
               value={formData.pricePerSeat}

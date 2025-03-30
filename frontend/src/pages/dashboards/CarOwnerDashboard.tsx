@@ -110,10 +110,10 @@ const CarOwnerDashboard = () => {
         features: {
           seats: car.features?.includes("seats")
             ? parseInt(
-                car.features
-                  .find((f: string) => f.includes("seats"))
-                  .split(" ")[0]
-              )
+              car.features
+                .find((f: string) => f.includes("seats"))
+                .split(" ")[0]
+            )
             : 5,
           transmission: car.features?.includes("Automatic")
             ? "Automatic"
