@@ -1,103 +1,38 @@
 import axios from "axios";
-
 import { toast } from "sonner";
 
-// Define types for your API
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: "renter" | "owner" | "driver";
-  type: string;
-}
-
-interface AuthResponse {
-  user: User;
-  token: string;
-}
-
-interface ApiError {
-  message: string;
-  status?: number;
-  data?: any;
-}
-
-// Create axios instance with base URL for your backend
-const API: any = axios.create({
+// Create base API instance with common config
+export const API = axios.create({
   baseURL: "http://localhost:5050/api",
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000,
-})<any>; // <-- Explicit generic type
-
-// Add request interceptor with proper typing
-API.interceptors.request.use(
-  (config: any) => {
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      try {
-        const { token } = JSON.parse(userData);
-        if (token) {
-          // Type assertion for headers
-          config.headers = config.headers || {};
-          (
-            config.headers as Record<string, string>
-          ).Authorization = `Bearer ${token}`;
-        }
-      } catch (error) {
-        console.error("Error parsing userData:", error);
-        localStorage.removeItem("userData");
-      }
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Debug interceptor
-API.interceptors.request.use((request) => {
-  console.log("Request:", request.method, request.url);
-  console.log("Headers:", request.headers);
-  return request;
 });
 
+// Add request interceptor for auth token
+API.interceptors.request.use((config) => {
+  const userData = localStorage.getItem("userData");
+  if (userData) {
+    const { token } = JSON.parse(userData);
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
+// Add response interceptor for debugging
 API.interceptors.response.use(
   (response) => {
-    console.log("Response Status:", response.status);
     return response;
   },
   (error) => {
-    console.error(
-      "API Error Response:",
-      error.response?.status,
-      error.response?.data
-    );
+    console.error("API Error:", error.response?.data || error.message);
+    toast.error(error.response?.data?.message || "Network error");
     return Promise.reject(error);
   }
 );
 
-// Response interceptor with proper typing
-API.interceptors.response.use(
-  (response: any) => response,
-  (error: any) => {
-    // <-- Explicit error type
-    const errorData = error.response?.data || { message: error.message };
-    console.error("API Error:", errorData);
-
-    let errorMessage = errorData.message || "Network error";
-    const statusCode = error.response?.status || 500;
-
-    toast.error(errorMessage);
-
-    return Promise.reject({
-      ...errorData,
-      status: statusCode,
-    }) as Promise<any>;
-  }
-);
-
-// Auth API
 export const authAPI = {
   login: (email: string, password: string) =>
     API.post("/auth/login", { email, password }),
@@ -112,6 +47,7 @@ export const authAPI = {
 
   getCurrentUser: () => API.get("/auth/current-user"),
 };
+
 // Car Owner API
 export const carOwnerAPI = {
   getCarListings: (): Promise<any> => {
@@ -119,13 +55,11 @@ export const carOwnerAPI = {
   },
 
   addCar: async (carData: FormData) => {
-    // Log the form data for debugging
     console.log("API call - addCar form data:");
     for (let [key, value] of carData.entries()) {
       console.log(`${key}: ${value}`);
     }
 
-    // Ensure authentication headers are added but don't override content-type
     const userData = localStorage.getItem("userData");
     const headers: any = {};
 
@@ -136,7 +70,6 @@ export const carOwnerAPI = {
       }
     }
 
-    // Make the API call with explicit content-type and auth headers
     const res = await axios.post(
       "http://localhost:5050/api/car-owner/cars",
       carData,
@@ -219,6 +152,10 @@ export const driverAPI = {
 
   createUpdateProfile: (profileData: any): Promise<any> => {
     return API.post("/driver/profile", profileData);
+  },
+
+  getDashboardStats: (): Promise<any> => {
+    return API.get("/driver/stats");
   },
 };
 
