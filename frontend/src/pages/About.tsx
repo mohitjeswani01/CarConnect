@@ -7,8 +7,19 @@ import FeaturesSection from "@/components/about/features-section";
 import TeamSection from "@/components/about/team-section";
 import CTASection from "@/components/home/cta-section";
 import SOSButton from "@/components/sos-button";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const About = () => {
+
+    const navigate = useNavigate();
+
+
+    const handleLogout = () => {
+        localStorage.removeItem("userData");
+        toast.success("Logged out successfully");
+        navigate("/login");
+    };
     // Page transition
     const pageVariants = {
         initial: {
@@ -30,7 +41,7 @@ const About = () => {
             variants={pageVariants}
             transition={{ duration: 0.5 }}
         >
-            <Navbar />
+            <Navbar onLogout={handleLogout} />
             <div className="pt-24 bg-blue-50 dark:bg-gray-900">
                 <div className="container mx-auto px-4 py-16">
                     <div className="text-center max-w-3xl mx-auto">

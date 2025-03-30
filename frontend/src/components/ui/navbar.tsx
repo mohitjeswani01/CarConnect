@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const Navbar = () => {
+const Navbar = ({ onLogout }) => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const location = useLocation();
@@ -39,6 +39,7 @@ const Navbar = () => {
 
     const handleLogout = () => {
         logout();
+        onLogout();
     };
 
     // Determine if carpool link should be shown

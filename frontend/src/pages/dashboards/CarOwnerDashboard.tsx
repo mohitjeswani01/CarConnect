@@ -135,6 +135,12 @@ const CarOwnerDashboard = () => {
         }
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem("userData");
+        toast.success("Logged out successfully");
+        navigate("/login");
+    };
+
     // Page transition
     const pageVariants = {
         initial: {
@@ -156,7 +162,7 @@ const CarOwnerDashboard = () => {
             variants={pageVariants}
             transition={{ duration: 0.5 }}
         >
-            <Navbar />
+            <Navbar onLogout={handleLogout} />
             <div className="pt-24">
                 <div className="container mx-auto px-4 py-12">
                     <div className="max-w-6xl mx-auto">
