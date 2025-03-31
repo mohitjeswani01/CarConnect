@@ -50,7 +50,7 @@ export const authAPI = {
 
 // Car Owner API
 export const carOwnerAPI = {
-  getCarListings: (): Promise<any> => {
+  getCarListings: async (): Promise<any> => {
     return API.get("/car-owner/listings");
   },
 
@@ -83,15 +83,15 @@ export const carOwnerAPI = {
     console.log(res.data);
   },
 
-  toggleCarAvailability: (carId: string): Promise<any> => {
+  toggleCarAvailability: async (carId: string): Promise<any> => {
     return API.patch(`/car-owner/cars/${carId}/toggle-availability`);
   },
 
-  getRentalRecords: (): Promise<any> => {
+  getRentalRecords: async (): Promise<any> => {
     return API.get("/car-owner/rental-records");
   },
 
-  updateCar: (carId: string, carData: FormData): Promise<any> => {
+  updateCar: async (carId: string, carData: FormData): Promise<any> => {
     return API.put(`/car-owner/cars/${carId}`, carData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -99,69 +99,69 @@ export const carOwnerAPI = {
     });
   },
 
-  deleteCar: (carId: string): Promise<any> => {
+  deleteCar: async (carId: string): Promise<any> => {
     return API.delete(`/car-owner/cars/${carId}`);
   },
 
-  getCarDetails: (carId: string): Promise<any> => {
+  getCarDetails: async (carId: string): Promise<any> => {
     return API.get(`/car-owner/cars/${carId}`);
   },
 };
 
 // Driver API
 export const driverAPI = {
-  getDriverProfile: (): Promise<any> => {
+  getDriverProfile: async (): Promise<any> => {
     return API.get("/driver/profile");
   },
 
-  getRideRequests: (): Promise<any> => {
+  getRideRequests: async (): Promise<any> => {
     return API.get("/driver/ride-requests");
   },
 
-  getActiveRides: (): Promise<any> => {
+  getActiveRides: async (): Promise<any> => {
     return API.get("/driver/active-rides");
   },
 
-  getRideHistory: (): Promise<any> => {
+  getRideHistory: async (): Promise<any> => {
     return API.get("/driver/ride-history");
   },
 
-  acceptRide: (requestId: string): Promise<any> => {
+  acceptRide: async (requestId: string): Promise<any> => {
     return API.post(`/driver/ride-requests/${requestId}/accept`);
   },
 
-  rejectRide: (requestId: string): Promise<any> => {
+  rejectRide: async (requestId: string): Promise<any> => {
     return API.post(`/driver/ride-requests/${requestId}/reject`);
   },
 
-  toggleAvailability: (isAvailable: boolean): Promise<any> => {
+  toggleAvailability: async (isAvailable: boolean): Promise<any> => {
     return API.patch("/driver/toggle-availability", { isAvailable });
   },
 
-  endRide: (rideId: string): Promise<any> => {
+  endRide: async (rideId: string): Promise<any> => {
     return API.post(`/driver/rides/${rideId}/complete`);
   },
 
-  getNotifications: (): Promise<any> => {
+  getNotifications: async (): Promise<any> => {
     return API.get("/driver/notifications");
   },
 
-  markNotificationAsRead: (notificationId: string): Promise<any> => {
+  markNotificationAsRead: async (notificationId: string): Promise<any> => {
     return API.patch(`/driver/notifications/${notificationId}`);
   },
 
-  createUpdateProfile: (profileData: any): Promise<any> => {
+  createUpdateProfile: async (profileData: any): Promise<any> => {
     return API.post("/driver/profile", profileData);
   },
 
-  getDashboardStats: (): Promise<any> => {
+  getDashboardStats: async (): Promise<any> => {
     return API.get("/driver/stats");
   },
 };
 
 // Car Renter API
 export const carRenterAPI = {
-  searchCars: (location?: string, category?: string): Promise<any> => {
+  searchCars: async (location?: string, category?: string): Promise<any> => {
     const params = new URLSearchParams();
     if (location) params.append("location", location);
     if (category) params.append("category", category);
@@ -169,77 +169,77 @@ export const carRenterAPI = {
     return API.get(`/car-renter/search?${params.toString()}`);
   },
 
-  getBookings: (): Promise<any> => {
+  getBookings: async (): Promise<any> => {
     return API.get("/car-renter/bookings");
   },
 
-  bookCar: (carId: string, bookingData: any): Promise<any> => {
+  bookCar: async (carId: string, bookingData: any): Promise<any> => {
     return API.post(`/car-renter/cars/${carId}/book`, bookingData);
   },
 
-  cancelBooking: (bookingId: string): Promise<any> => {
+  cancelBooking: async (bookingId: string): Promise<any> => {
     return API.post(`/car-renter/bookings/${bookingId}/cancel`);
   },
 
-  extendBooking: (bookingId: string, extendData: any): Promise<any> => {
+  extendBooking: async (bookingId: string, extendData: any): Promise<any> => {
     return API.post(`/car-renter/bookings/${bookingId}/extend`, extendData);
   },
 
-  getNotifications: (): Promise<any> => {
+  getNotifications: async (): Promise<any> => {
     return API.get("/car-renter/notifications");
   },
 
-  markNotificationAsRead: (notificationId: string): Promise<any> => {
+  markNotificationAsRead: async (notificationId: string): Promise<any> => {
     return API.patch(`/car-renter/notifications/${notificationId}`);
   },
 };
 
 // Carpool API
 export const carpoolAPI = {
-  searchRides: (from: string, to: string, date: string): Promise<any> => {
+  searchRides: async (from: string, to: string, date: string): Promise<any> => {
     return API.get("/carpool/search", { params: { from, to, date } });
   },
 
-  postRide: (rideData: any): Promise<any> => {
-    return API.post("/carpool/rides", rideData);
+  postRide: async (rideData: any): Promise<any> => {
+    return API.post("/carpool/postride", rideData);
   },
 
-  bookRide: (rideId: string): Promise<any> => {
+  bookRide: async (rideId: string): Promise<any> => {
     return API.post(`/carpool/rides/${rideId}/book`);
   },
 
-  getUserRides: (): Promise<any> => {
+  getUserRides: async (): Promise<any> => {
     return API.get("/carpool/user-rides");
   },
 
-  getOfferedRides: (): Promise<any> => {
+  getOfferedRides: async (): Promise<any> => {
     return API.get("/carpool/offered-rides");
   },
 
-  cancelRideBooking: (rideId: string): Promise<any> => {
+  cancelRideBooking: async (rideId: string): Promise<any> => {
     return API.post(`/carpool/rides/${rideId}/cancel`);
   },
 };
 
 // Notifications API
 export const notificationAPI = {
-  getUserNotifications: (userId: string): Promise<any> => {
+  getUserNotifications: async (userId: string): Promise<any> => {
     return API.get(`/notifications/user/${userId}`);
   },
 
-  markAsRead: (notificationId: string): Promise<any> => {
+  markAsRead: async (notificationId: string): Promise<any> => {
     return API.patch(`/notifications/${notificationId}/read`);
   },
 
-  markAllAsRead: (): Promise<any> => {
+  markAllAsRead: async (): Promise<any> => {
     return API.patch("/notifications/mark-all-read");
   },
 
-  getUnreadCount: (): Promise<any> => {
+  getUnreadCount: async (): Promise<any> => {
     return API.get("/notifications/unread-count");
   },
 
-  deleteNotification: (notificationId: string): Promise<any> => {
+  deleteNotification: async (notificationId: string): Promise<any> => {
     return API.delete(`/notifications/${notificationId}`);
   },
 };

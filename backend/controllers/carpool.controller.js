@@ -3,56 +3,103 @@ const CarpoolRide = require("../models/CarpoolRide");
 // @desc    Search for rides
 // @route   GET /api/carpool/search
 // @access  Public
+const moment = require('moment');
+
 exports.searchRides = async (req, res, next) => {
   try {
-    const { from, to, date } = req.query;
+    const { from, to, date } = req.params;
 
-    let query = {};
-
-    if (from) {
-      query.from = { $regex: from, $options: "i" };
+    // Input validation
+    if (!from || !to) {
+      return res.status(400).json({
+        success: false,
+        message: "Both 'from' and 'to' parameters are required"
+      });
     }
 
-    if (to) {
-      query.to = { $regex: to, $options: "i" };
+    let query = {
+      from: { $regex: new RegExp(from, 'i') },
+      to: { $regex: new RegExp(to, 'i') },
+      availableSeats: { $gt: 0 }
+    };
+
+    if (date && date !== 'undefined') {
+      try {
+        // Parse date using moment.js with strict validation
+        const searchDate = moment(date, 'YYYY-MM-DD', true);
+
+        if (!searchDate.isValid()) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid date format. Please use YYYY-MM-DD"
+          });
+        }
+
+        // Create date range for the entire day in UTC
+        const startDate = searchDate.startOf('day').toDate();
+        const endDate = searchDate.endOf('day').toDate();
+
+        query.date = {
+          $gte: startDate,
+          $lte: endDate
+        };
+      } catch (err) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid date parameter"
+        });
+      }
     }
-
-    if (date) {
-      // Create a date range for the given date (entire day)
-      const searchDate = new Date(date);
-      const nextDay = new Date(searchDate);
-      nextDay.setDate(nextDay.getDate() + 1);
-
-      query.date = {
-        $gte: searchDate,
-        $lt: nextDay,
-      };
-    }
-
-    // Only return rides with available seats
-    query.availableSeats = { $gt: 0 };
 
     const rides = await CarpoolRide.find(query)
-      .populate("driver", "name")
-      .sort({ date: 1 });
+      .populate("driver", "name rating")
+      .sort({ date: 1 })
+      .lean();
+
+    // Format response data consistently
+    const formattedRides = rides.map(ride => {
+      // Ensure date is properly formatted
+      const rideDate = moment(ride.date).isValid()
+        ? moment(ride.date).toISOString()
+        : new Date(ride.date).toISOString();
+
+      return {
+        _id: ride._id,
+        from: ride.from,
+        to: ride.to,
+        date: rideDate,
+        time: ride.time || moment(ride.date).format('HH:mm'),
+        pricePerSeat: ride.pricePerSeat,
+        availableSeats: ride.availableSeats,
+        driver: {
+          name: ride.driver?.name || 'Unknown',
+          rating: ride.driver?.rating || '4.8'
+        }
+      };
+    });
 
     res.status(200).json({
       success: true,
-      count: rides.length,
-      data: rides,
+      count: formattedRides.length,
+      data: formattedRides
     });
   } catch (err) {
+    console.error("Error in searchRides:", err);
     next(err);
   }
 };
-
 // @desc    Post a new ride
 // @route   POST /api/carpool/rides
 // @access  Private/Carpool
 exports.postRide = async (req, res, next) => {
   try {
+    const user = req.user;
+    console.log(user)
+
+    const driverId = user.id
+
     const {
-      driverId,
+
       from,
       to,
       date,

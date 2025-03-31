@@ -120,7 +120,7 @@ exports.bookCar = async (req, res, next) => {
       startDate: parsedStartDate,
       endDate: parsedEndDate,
       totalPrice,
-      status: withDriver ? "pending" : "confirmed", // If with driver, status starts as pending until driver accepts
+      status: withDriver ? "pending" : "approved", // If with driver, status starts as pending until driver accepts
       withDriver: withDriver || false,
     });
 

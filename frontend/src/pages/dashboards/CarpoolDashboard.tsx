@@ -257,10 +257,7 @@ const CarpoolDashboard = () => {
         // Improved date/time handling with error checking
         let formattedTime = "Time not available";
         try {
-          formattedTime = new Date(ride.date).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
+          formattedTime = new Date(ride.date).toISOString().split("T")[0];
         } catch (e) {
           console.error("Error formatting time:", e);
         }
@@ -308,45 +305,94 @@ const CarpoolDashboard = () => {
     try {
       setIsLoading(true);
 
-      // Construct query parameters
-      const params = new URLSearchParams();
-      if (searchData.from) params.append("from", searchData.from);
-      if (searchData.to) params.append("to", searchData.to);
-      if (searchData.date) params.append("date", searchData.date);
+      // Validate required fields
+      if (!searchData.from || !searchData.to) {
+        toast.error("Please enter both 'From' and 'To' locations");
+        setIsLoading(false);
+        return;
+      }
 
-      const res = await axios.get(
-        `${API_BASE_URL}/search?${params.toString()}`,
-        {
-          headers: {
-            Authorization: `Bearer ${userData.token}`,
-          },
-        }
-      );
-
-      // Transform the data for the UI with better error handling
-      const formattedResults = res.data.data.map((ride: any) => {
-        // Improved date/time handling with error checking
-        let formattedTime = "Time not available";
+      // Format date if provided
+      let formattedDate = "";
+      if (searchData.date) {
         try {
-          formattedTime = new Date(ride.date).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
+          // First try to parse as is (might work for some formats)
+          let dateObj = new Date(searchData.date);
+
+          // If that fails, try cleaning up natural language dates
+          if (isNaN(dateObj.getTime())) {
+            // Remove ordinal indicators (st, nd, rd, th)
+            const cleanedDateStr = searchData.date.replace(
+              /(\d+)(st|nd|rd|th)/,
+              '$1'
+            );
+            dateObj = new Date(cleanedDateStr);
+
+            // If still invalid, try more parsing
+            if (isNaN(dateObj.getTime())) {
+              // Try parsing month names - create a more standard format
+              const months = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+              ];
+              const dateParts = searchData.date.split(/[\s,]+/);
+              const month = months.findIndex(m =>
+                dateParts[0].startsWith(m.substring(0, 3))
+              );
+              const day = parseInt(dateParts[1].replace(/\D/g, ''));
+              const year = parseInt(dateParts[2]);
+
+              if (month >= 0 && !isNaN(day) && !isNaN(year)) {
+                dateObj = new Date(year, month, day);
+              }
+            }
+          }
+
+          if (isNaN(dateObj.getTime())) {
+            throw new Error("Invalid date");
+          }
+
+          console.log("Parsed date:", dateObj);
+          formattedDate = dateObj.toISOString().split('T')[0]; // YYYY-MM-DD
         } catch (e) {
-          console.error("Error formatting time:", e);
+          console.error("Invalid date format:", searchData.date, e);
+          toast.error("Please enter a valid date in format MM/DD/YYYY or Month Day, Year");
+          setIsLoading(false);
+          return;
         }
+      }
+
+      // Rest of your function remains the same...
+      const fromEncoded = encodeURIComponent(searchData.from.trim());
+      const toEncoded = encodeURIComponent(searchData.to.trim());
+      const dateParam = formattedDate ? `/${formattedDate}` : '';
+
+      const url = `${API_BASE_URL}/search/${fromEncoded}/${toEncoded}${dateParam}`;
+
+      const res = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${userData.token}`,
+        },
+      });
+
+      if (!res.data?.success || !Array.isArray(res.data.data)) {
+        throw new Error("Invalid API response structure");
+      }
+
+      const formattedResults = res.data.data.map((ride: any) => {
+        const rideDate = ride.date ? new Date(ride.date) : new Date();
 
         return {
           id: ride._id,
           from: ride.from,
           to: ride.to,
-          date: new Date(ride.date).toLocaleDateString(),
-          time: formattedTime,
-          price: ride.pricePerSeat,
-          availableSeats: ride.availableSeats,
+          date: rideDate.toLocaleDateString(),
+          time: ride.time ? formatTimeDisplay(ride.time) : formatTimeDisplay(rideDate.toISOString()),
+          price: ride.pricePerSeat || 0,
+          availableSeats: ride.availableSeats || 0,
           driver: {
             name: ride.driver?.name || "Unknown",
-            rating: "4.8",
+            rating: ride.driver?.rating || "4.8",
           },
         };
       });
@@ -355,7 +401,7 @@ const CarpoolDashboard = () => {
       setShowResults(true);
     } catch (error) {
       console.error("Error searching rides:", error);
-      toast.error("Failed to search for rides");
+      toast.error(error.response?.data?.message || "Failed to search for rides");
     } finally {
       setIsLoading(false);
     }

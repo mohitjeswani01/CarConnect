@@ -15,7 +15,7 @@ const { protect, authorize } = require("../middleware/auth");
 const router = express.Router();
 
 // Public routes
-router.get("/search", searchRides);
+router.get("/search/:from/:to/:date?", searchRides);
 
 // Protected routes
 router.use(protect);

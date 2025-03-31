@@ -20,6 +20,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import API, { carpoolAPI } from "@/services/api";
 
 const PostRideForm = () => {
   const [date, setDate] = useState<Date>();
@@ -54,7 +55,7 @@ const PostRideForm = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const submissionData = {
       ...formData,
@@ -62,6 +63,10 @@ const PostRideForm = () => {
       fullTime: `${formData.time} ${formData.timePeriod}`, // Combined time display
     };
     console.log(submissionData);
+
+    const res = await carpoolAPI.postRide(submissionData)
+    console.log(res.data)
+
     toast.success("Ride posted successfully!", {
       description: "Your ride is now visible to potential passengers.",
     });

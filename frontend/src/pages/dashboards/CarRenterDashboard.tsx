@@ -300,7 +300,7 @@ const CarRenterDashboard = () => {
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
         withDriver,
-        status: "pending", // Set the status to pending
+        status: "approved", // Set the status to pending
       };
 
       console.log("Booking data:", bookingData);
