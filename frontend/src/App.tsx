@@ -23,6 +23,7 @@ import CarOwnerDashboard from "./pages/dashboards/CarOwnerDashboard";
 import CarRenterDashboard from "./pages/dashboards/CarRenterDashboard";
 import DriverDashboard from "./pages/dashboards/DriverDashboard";
 import CarpoolDashboard from "./pages/dashboards/CarpoolDashboard";
+import BookingForm from "./pages/BookingForm";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,12 @@ const App = () => (
                             <Route path="/carpool-login" element={<CarpoolLogin />} />
                             <Route path="/carpool-signup" element={<CarpoolSignup />} />
                             <Route path="/sos" element={<SOS />} />
+                            <Route
+                                path="/booking-form/:carId"
+                                element={<BookingForm carId={""} pricePerDay={0} withDriver={false} onSubmit={function (bookingData: { carId: string; numberOfDays: number; totalAmount: number; withDriver: boolean; }): Promise<void> {
+                                    throw new Error("Function not implemented.");
+                                } } />}
+                            />
 
                             {/* Dashboard Routes */}
                             <Route path="/car-owner-dashboard" element={<CarOwnerDashboard />} />

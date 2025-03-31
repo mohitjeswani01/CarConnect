@@ -163,41 +163,41 @@ const CarRenterDashboard = () => {
       });
 
       // Use sample data as fallback
-      // setAvailableCars([
-      //   {
-      //     id: "1",
-      //     model: "Maruti Swift",
-      //     category: "Hatchback",
-      //     price: 800,
-      //     rentalPeriod: "day",
-      //     location: "Delhi, India",
-      //     image: "images/swift.png",
-      //     features: {
-      //       seats: 5,
-      //       transmission: "Manual",
-      //       fuelType: "Petrol",
-      //       mileage: "21 km/l",
-      //     },
-      //     owner: {
-      //       name: "Rahul Verma",
-      //       rating: 4.8,
-      //     },
-      //   },
-      //   // Add more sample cars as needed
-      // ]);
+      setAvailableCars([
+        {
+          id: "1",
+          model: "Maruti Swift",
+          category: "Hatchback",
+          price: 800,
+          rentalPeriod: "day",
+          location: "Delhi, India",
+          image: "images/swift.png",
+          features: {
+            seats: 5,
+            transmission: "Manual",
+            fuelType: "Petrol",
+            mileage: "21 km/l",
+          },
+          owner: {
+            name: "Rahul Verma",
+            rating: 4.8,
+          },
+        },
+        // Add more sample cars as needed
+      ]);
 
       setCurrentBookings([
-        // {
-        //   id: "101",
-        //   carModel: "Maruti Swift",
-        //   category: "Hatchback",
-        //   startDate: "2023-10-15",
-        //   endDate: "2023-10-18",
-        //   totalAmount: 2400,
-        //   status: "Active",
-        //   withDriver: false,
-        //   image: "images/swift.png",
-        // },
+        {
+          id: "101",
+          carModel: "Maruti Swift",
+          category: "Hatchback",
+          startDate: "2023-10-15",
+          endDate: "2023-10-18",
+          totalAmount: 2400,
+          status: "Active",
+          withDriver: false,
+          image: "images/swift.png",
+        },
         // Add more sample bookings as needed
       ]);
     } finally {
