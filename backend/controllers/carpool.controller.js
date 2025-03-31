@@ -135,13 +135,6 @@ exports.postRide = async (req, res, next) => {
 // @access  Private/Carpool
 exports.bookRide = async (req, res, next) => {
   try {
-    // If the date is passed, ensure it's properly formatted as a Date object
-    if (req.body.date) {
-      req.body.date = new Date(req.body.date);
-    }
-
-    console.log(req.user);
-    console.log(req.body);
     const ride = await CarpoolRide.findById(req.params.id);
 
     if (!ride) {
@@ -193,9 +186,11 @@ exports.bookRide = async (req, res, next) => {
       data: ride,
     });
   } catch (err) {
-    next(err);
+    console.error("Error booking ride:", err);
+    next(err);  // Pass the error to the global error handler
   }
 };
+
 
 // @desc    Get user rides (booked by user)
 // @route   GET /api/carpool/user-rides
