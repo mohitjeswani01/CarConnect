@@ -135,65 +135,60 @@ exports.postRide = async (req, res, next) => {
 // @access  Private/Carpool
 exports.bookRide = async (req, res, next) => {
   try {
-    // If the date is passed, ensure it's properly formatted as a Date object
-    if (req.body.date) {
-      req.body.date = new Date(req.body.date);
-    }
-
-    console.log(req.user);
-    console.log(req.body);
     const ride = await CarpoolRide.findById(req.params.id);
 
     if (!ride) {
       return res.status(404).json({
         success: false,
-        message: "Ride not found",
+        message: "Ride not found"
       });
     }
 
-    // Check if user is the driver
+    // Authorization check
     if (ride.driver.toString() === req.user.id) {
-      return res.status(400).json({
+      return res.status(403).json({
         success: false,
-        message: "You cannot book your own ride",
+        message: "You cannot book your own ride"
       });
     }
 
-    // Check if user already booked this ride
-    const alreadyBooked = ride.passengers.some(
-      (passenger) => passenger.user.toString() === req.user.id
+    // Check existing booking
+    const alreadyBooked = ride.passengers.some(p =>
+      p.user.toString() === req.user.id
     );
-
     if (alreadyBooked) {
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
-        message: "You have already booked this ride",
+        message: "You already booked this ride"
       });
     }
 
-    // Check if seats are available
+    // Check seat availability
     if (ride.availableSeats <= 0) {
       return res.status(400).json({
         success: false,
-        message: "No seats available for this ride",
+        message: "No seats available"
       });
     }
 
-    // Add user to passengers and decrease available seats
-    ride.passengers.push({
-      user: req.user.id,
-      status: "confirmed",
-    });
-
+    // Update ride
+    ride.passengers.push({ user: req.user.id, status: "confirmed" });
     ride.availableSeats -= 1;
-    await ride.save();
+
+    const savedRide = await ride.save();
 
     res.status(200).json({
       success: true,
-      data: ride,
+      data: savedRide,
+      message: "Booking confirmed!"
     });
+
   } catch (err) {
-    next(err);
+    console.error("Booking error:", err);
+    res.status(500).json({
+      success: false,
+      message: err.message || "Internal server error"
+    });
   }
 };
 

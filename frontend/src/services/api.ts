@@ -205,8 +205,9 @@ export const carpoolAPI = {
   },
 
   bookRide: async (rideId: string): Promise<any> => {
-    return API.post(`/carpool/rides/${rideId}/book`);
+    return API.post(`/carpool/rides/${rideId}/book`); // Use correct endpoint
   },
+
 
   getUserRides: async (): Promise<any> => {
     return API.get("/carpool/user-rides");

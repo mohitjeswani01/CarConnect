@@ -164,7 +164,7 @@ const CarpoolDashboard = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("userRides:-",res);
+      console.log("userRides:-", res);
 
       // Split into upcoming and past rides
       const now = new Date();
@@ -305,12 +305,12 @@ const CarpoolDashboard = () => {
   const parseDate = (dateStr: string): string => {
     // First attempt: Try creating a date object directly from the input string
     let dateObj = new Date(dateStr);
-    
+
     if (isNaN(dateObj.getTime())) {
       // If the date is invalid, remove the ordinal suffix (st, nd, rd, th)
       const cleanedDateStr = dateStr.replace(/(\d+)(st|nd|rd|th)/g, '$1');
       dateObj = new Date(cleanedDateStr);  // Attempt to parse again after cleaning
-      
+
       // If still invalid, try splitting the date into its parts manually
       if (isNaN(dateObj.getTime())) {
         // Handling month names, e.g., "April 3, 2025"
@@ -318,52 +318,52 @@ const CarpoolDashboard = () => {
           'January', 'February', 'March', 'April', 'May', 'June',
           'July', 'August', 'September', 'October', 'November', 'December'
         ];
-        
+
         // Split the input date string into its components
         const dateParts = dateStr.split(/[\s,]+/);
         const monthStr = dateParts[0]; // First part is the month (e.g., "April")
         const day = parseInt(dateParts[1].replace(/\D/g, '')); // Second part is the day (e.g., "3")
         const year = parseInt(dateParts[2]); // Third part is the year (e.g., "2025")
-        
+
         const month = months.findIndex(m => m.toLowerCase().startsWith(monthStr.toLowerCase().substring(0, 3))); // Match month by its first 3 letters
-  
+
         // If valid month, day, and year are parsed
         if (month >= 0 && !isNaN(day) && !isNaN(year)) {
           dateObj = new Date(year, month, day);
         }
       }
     }
-  
+
     // Check if the date is still invalid after all attempts
     if (isNaN(dateObj.getTime())) {
       throw new Error("Invalid date format");
     }
-  
+
     // Return the formatted date as YYYY-MM-DD (ISO 8601 format)
     return dateObj.toISOString().split('T')[0]; // YYYY-MM-DD format
   };
-  
+
   const incrementDateByOne = (formattedDate: string): string => {
     // Parse the formattedDate (YYYY-MM-DD)
     const dateObj = new Date(formattedDate);
-  
+
     // Check if the date is valid
     if (isNaN(dateObj.getTime())) {
       throw new Error("Invalid date format");
     }
-  
+
     // Increment the date by 1 day
     dateObj.setDate(dateObj.getDate() + 1);
-  
+
     // Return the new formatted date (YYYY-MM-DD)
     return dateObj.toISOString().split('T')[0]; // YYYY-MM-DD format
   };
-  
-  
+
+
   const handleSearch = async (searchData: any) => {
     console.log("Starting search with data:", searchData);
     setIsLoading(true); // Show loading indicator
-  
+
     try {
       // Validate required fields
       if (!searchData.from || !searchData.to) {
@@ -372,9 +372,9 @@ const CarpoolDashboard = () => {
         setIsLoading(false);
         return;
       }
-  
+
       console.log("Validation passed");
-  
+
       // Format date if provided
       let formattedDate = "";
       if (searchData.date) {
@@ -389,21 +389,21 @@ const CarpoolDashboard = () => {
           return;
         }
       }
-  
+
       // Prepare the URL with encoded 'from' and 'to' locations
       const fromEncoded = encodeURIComponent(searchData.from.trim());
       const toEncoded = encodeURIComponent(searchData.to.trim());
       console.log("Encoded 'from':", fromEncoded);
       console.log("Encoded 'to':", toEncoded);
-  
+
       // Only append the date parameter if it exists
       const dateParam = formattedDate ? `/${incrementDateByOne(formattedDate)}` : "";
       console.log("Date parameter for URL:", dateParam);
-  
+
       // Construct the full URL for the API request
       const url = `${API_BASE_URL}/search/${fromEncoded}/${toEncoded}${dateParam}`;
       console.log("Constructed API URL:", url);
-  
+
       // Check if the token is available
       if (!userData?.token) {
         console.log("Authorization token is missing");
@@ -411,9 +411,9 @@ const CarpoolDashboard = () => {
         setIsLoading(false);
         return;
       }
-  
+
       console.log("Authorization token is available");
-  
+
       // Make the request to the API
       console.log("Sending API request...");
       const res = await axios.get<{ success: boolean; data: any[] }>(url, {
@@ -421,17 +421,17 @@ const CarpoolDashboard = () => {
           Authorization: `Bearer ${userData.token}`,
         },
       });
-  
+
       console.log("API response received:", res.data);
-  
+
       // Check for successful response and valid data
       if (!res.data.success || !Array.isArray(res.data.data)) {
         console.log("Invalid API response structure");
         throw new Error("Invalid API response structure");
       }
-  
+
       console.log("API response is valid");
-  
+
       // Format the results for displaying in the UI
       console.log("Formatting search results...");
       const formattedResults = res.data.data.map((ride: any) => {
@@ -450,23 +450,23 @@ const CarpoolDashboard = () => {
           },
         };
       });
-  
+
       // Check if no results were found
       if (formattedResults.length === 0) {
         console.log("No rides found for the given search criteria.");
         toast.info("No rides available for the selected search criteria.");
       }
-  
+
       console.log("Formatted results:", formattedResults);
-  
+
       // Set the results and show them in the UI
       setSearchResults(formattedResults);
       setShowResults(true);
       console.log("Search results updated in state");
-  
+
     } catch (error) {
       console.error("Error searching rides:", error);
-  
+
       // If it's an Axios error, handle it with a detailed message
       if ((error as any).isAxiosError) {
         console.log("Axios error occurred:", error.response?.data?.message);
@@ -480,9 +480,9 @@ const CarpoolDashboard = () => {
       console.log("Search process completed");
     }
   };
-  
 
-  
+
+
 
   // Handler for canceling a ride offering
   const handleCancelRide = async (rideId: string) => {
@@ -559,40 +559,30 @@ const CarpoolDashboard = () => {
 
   const handleBookRide = async (rideId: string) => {
     try {
-      await axios.post(
-        `/api/carpool/rides/${rideId}/book`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${userData.token}`,
-          },
-        }
-      );
+      // Use the API abstraction instead of direct axios call
+      const response = await carpoolAPI.bookRide(rideId);
 
-      toast.success("Ride booked successfully!");
+      if (response.data.success) {
+        toast.success(response.data.message);
 
-      // Refresh the booked rides
-      fetchUserRides(userData.token);
-
-      // Also refresh the search results
-      if (showResults) {
-        // Remove the booked ride from search results or refresh the search
-        setSearchResults((prevResults) =>
-          prevResults
-            .map((ride) =>
-              ride.id === rideId
-                ? { ...ride, availableSeats: ride.availableSeats - 1 }
-                : ride
-            )
-            .filter((ride) => ride.availableSeats > 0)
+        // Update UI state
+        setSearchResults(prev =>
+          prev.map(ride =>
+            ride.id === rideId ? {
+              ...ride,
+              availableSeats: ride.availableSeats - 1
+            } : ride
+          ).filter(r => r.availableSeats > 0)
         );
-      }
 
-      // Switch to the My Rides tab
-      (document.querySelector('[value="myRides"]') as HTMLElement)?.click();
-    } catch (error: any) {
-      console.error("Error booking ride:", error);
-      toast.error(error.response?.data?.message || "Failed to book ride");
+        // Refresh data
+        fetchUserRides(userData.token);
+        document.querySelector('[value="myRides"]')?.click();
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Booking failed";
+      toast.error(errorMessage);
+      console.error("Booking error:", error);
     }
   };
 
