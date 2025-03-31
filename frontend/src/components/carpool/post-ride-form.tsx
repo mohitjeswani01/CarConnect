@@ -22,7 +22,11 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import API, { carpoolAPI } from "@/services/api";
 
-const PostRideForm = () => {
+interface PostRideFormProps {
+  onSubmit: (rideData: any) => Promise<void>;
+}
+
+const PostRideForm: React.FC<PostRideFormProps> = ({ onSubmit }) => {
   const [date, setDate] = useState<Date>();
   const [formData, setFormData] = useState({
     from: "",
@@ -64,8 +68,8 @@ const PostRideForm = () => {
     };
     console.log(submissionData);
 
-    const res = await carpoolAPI.postRide(submissionData)
-    console.log(res.data)
+    const res = await carpoolAPI.postRide(submissionData);
+    console.log(res.data);
 
     toast.success("Ride posted successfully!", {
       description: "Your ride is now visible to potential passengers.",
@@ -215,15 +219,17 @@ const PostRideForm = () => {
 
         <div className="space-y-2">
           <Label htmlFor="pricePerSeat">Price per Seat</Label>
-          <div className="relative">
-            <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <div className="relative flex items-center">
+            <span className="absolute left-3 text-muted-foreground text-xl">
+              ₹
+            </span>
             <Input
               id="pricePerSeat"
               type="number"
               min="0"
               step="0.01"
               placeholder="Price in ₹"
-              className="pl-10 premium-input"
+              className="pl-8 pr-4 w-full"
               required
               value={formData.pricePerSeat}
               onChange={handleChange}

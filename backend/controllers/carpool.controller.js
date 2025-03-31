@@ -1,8 +1,4 @@
 const CarpoolRide = require("../models/CarpoolRide");
-
-// @desc    Search for rides
-// @route   GET /api/carpool/search
-// @access  Public
 const moment = require('moment');
 
 exports.searchRides = async (req, res, next) => {
@@ -88,9 +84,7 @@ exports.searchRides = async (req, res, next) => {
     next(err);
   }
 };
-// @desc    Post a new ride
-// @route   POST /api/carpool/rides
-// @access  Private/Carpool
+
 exports.postRide = async (req, res, next) => {
   try {
     const user = req.user;
