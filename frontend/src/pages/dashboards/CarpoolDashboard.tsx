@@ -159,11 +159,14 @@ const CarpoolDashboard = () => {
   const fetchUserRides = async (token: string) => {
     setIsLoading(true);
     try {
-      const res = await axios.get<{ data: { data: any[] } }>(`${API_BASE_URL}/user-rides`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.get<{ data: { data: any[] } }>(
+        `${API_BASE_URL}/user-rides`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       console.log("userRides:-", res);
 
       // Split into upcoming and past rides
@@ -171,51 +174,52 @@ const CarpoolDashboard = () => {
       const upcoming: BookedRide[] = [];
       const past: CompletedRide[] = [];
 
-      Array.isArray(res.data.data) && res.data.data.forEach((ride: any) => {
-        const rideDate = new Date(ride.date);
-        // Improved date/time handling with error checking
-        let formattedTime = "Time not available";
-        try {
-          formattedTime = new Date(ride.date).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-        } catch (e) {
-          console.error("Error formatting time:", e);
-        }
+      Array.isArray(res.data.data) &&
+        res.data.data.forEach((ride: any) => {
+          const rideDate = new Date(ride.date);
+          // Improved date/time handling with error checking
+          let formattedTime = "Time not available";
+          try {
+            formattedTime = new Date(ride.date).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+          } catch (e) {
+            console.error("Error formatting time:", e);
+          }
 
-        if (rideDate > now) {
-          upcoming.push({
-            id: ride._id,
-            from: ride.from,
-            to: ride.to,
-            date: new Date(ride.date).toLocaleDateString(),
-            time: ride.time
-              ? formatTimeDisplay(ride.time)
-              : formatTimeDisplay(new Date(ride.date).toISOString()),
-            price: ride.pricePerSeat,
-            status: "Confirmed",
-            driver: {
-              name: ride.driver?.name || "Unknown",
-              rating: "4.8",
-              car: ride.carDetails || "Not specified",
-            },
-          });
-        } else {
-          past.push({
-            id: ride._id,
-            from: ride.from,
-            to: ride.to,
-            date: new Date(ride.date).toLocaleDateString(),
-            type: "Passenger",
-            price: ride.pricePerSeat,
-            driver: {
-              name: ride.driver?.name || "Unknown",
-              rating: "4.8",
-            },
-          });
-        }
-      });
+          if (rideDate > now) {
+            upcoming.push({
+              id: ride._id,
+              from: ride.from,
+              to: ride.to,
+              date: new Date(ride.date).toLocaleDateString(),
+              time: ride.time
+                ? formatTimeDisplay(ride.time)
+                : formatTimeDisplay(new Date(ride.date).toISOString()),
+              price: ride.pricePerSeat,
+              status: "Confirmed",
+              driver: {
+                name: ride.driver?.name || "Unknown",
+                rating: "4.8",
+                car: ride.carDetails || "Not specified",
+              },
+            });
+          } else {
+            past.push({
+              id: ride._id,
+              from: ride.from,
+              to: ride.to,
+              date: new Date(ride.date).toLocaleDateString(),
+              type: "Passenger",
+              price: ride.pricePerSeat,
+              driver: {
+                name: ride.driver?.name || "Unknown",
+                rating: "4.8",
+              },
+            });
+          }
+        });
 
       setBookedRides(upcoming);
 
@@ -308,24 +312,36 @@ const CarpoolDashboard = () => {
 
     if (isNaN(dateObj.getTime())) {
       // If the date is invalid, remove the ordinal suffix (st, nd, rd, th)
-      const cleanedDateStr = dateStr.replace(/(\d+)(st|nd|rd|th)/g, '$1');
-      dateObj = new Date(cleanedDateStr);  // Attempt to parse again after cleaning
+      const cleanedDateStr = dateStr.replace(/(\d+)(st|nd|rd|th)/g, "$1");
+      dateObj = new Date(cleanedDateStr); // Attempt to parse again after cleaning
 
       // If still invalid, try splitting the date into its parts manually
       if (isNaN(dateObj.getTime())) {
         // Handling month names, e.g., "April 3, 2025"
         const months = [
-          'January', 'February', 'March', 'April', 'May', 'June',
-          'July', 'August', 'September', 'October', 'November', 'December'
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
         ];
 
         // Split the input date string into its components
         const dateParts = dateStr.split(/[\s,]+/);
         const monthStr = dateParts[0]; // First part is the month (e.g., "April")
-        const day = parseInt(dateParts[1].replace(/\D/g, '')); // Second part is the day (e.g., "3")
+        const day = parseInt(dateParts[1].replace(/\D/g, "")); // Second part is the day (e.g., "3")
         const year = parseInt(dateParts[2]); // Third part is the year (e.g., "2025")
 
-        const month = months.findIndex(m => m.toLowerCase().startsWith(monthStr.toLowerCase().substring(0, 3))); // Match month by its first 3 letters
+        const month = months.findIndex((m) =>
+          m.toLowerCase().startsWith(monthStr.toLowerCase().substring(0, 3))
+        ); // Match month by its first 3 letters
 
         // If valid month, day, and year are parsed
         if (month >= 0 && !isNaN(day) && !isNaN(year)) {
@@ -340,7 +356,7 @@ const CarpoolDashboard = () => {
     }
 
     // Return the formatted date as YYYY-MM-DD (ISO 8601 format)
-    return dateObj.toISOString().split('T')[0]; // YYYY-MM-DD format
+    return dateObj.toISOString().split("T")[0]; // YYYY-MM-DD format
   };
 
   const incrementDateByOne = (formattedDate: string): string => {
@@ -356,9 +372,8 @@ const CarpoolDashboard = () => {
     dateObj.setDate(dateObj.getDate() + 1);
 
     // Return the new formatted date (YYYY-MM-DD)
-    return dateObj.toISOString().split('T')[0]; // YYYY-MM-DD format
+    return dateObj.toISOString().split("T")[0]; // YYYY-MM-DD format
   };
-
 
   const handleSearch = async (searchData: any) => {
     console.log("Starting search with data:", searchData);
@@ -384,7 +399,9 @@ const CarpoolDashboard = () => {
           console.log("Formatted date:", formattedDate);
         } catch (e) {
           console.error("Invalid date format:", searchData.date, e);
-          toast.error("Please enter a valid date in format MM/DD/YYYY or Month Day, Year");
+          toast.error(
+            "Please enter a valid date in format MM/DD/YYYY or Month Day, Year"
+          );
           setIsLoading(false);
           return;
         }
@@ -397,7 +414,9 @@ const CarpoolDashboard = () => {
       console.log("Encoded 'to':", toEncoded);
 
       // Only append the date parameter if it exists
-      const dateParam = formattedDate ? `/${incrementDateByOne(formattedDate)}` : "";
+      const dateParam = formattedDate
+        ? `/${incrementDateByOne(formattedDate)}`
+        : "";
       console.log("Date parameter for URL:", dateParam);
 
       // Construct the full URL for the API request
@@ -441,7 +460,9 @@ const CarpoolDashboard = () => {
           from: ride.from,
           to: ride.to,
           date: rideDate.toLocaleDateString(),
-          time: ride.time ? formatTimeDisplay(ride.time) : formatTimeDisplay(rideDate.toISOString()),
+          time: ride.time
+            ? formatTimeDisplay(ride.time)
+            : formatTimeDisplay(rideDate.toISOString()),
           price: ride.pricePerSeat || 0,
           availableSeats: ride.availableSeats || 0,
           driver: {
@@ -463,14 +484,15 @@ const CarpoolDashboard = () => {
       setSearchResults(formattedResults);
       setShowResults(true);
       console.log("Search results updated in state");
-
     } catch (error) {
       console.error("Error searching rides:", error);
 
       // If it's an Axios error, handle it with a detailed message
       if ((error as any).isAxiosError) {
         console.log("Axios error occurred:", error.response?.data?.message);
-        toast.error(error.response?.data?.message || "Failed to search for rides");
+        toast.error(
+          error.response?.data?.message || "Failed to search for rides"
+        );
       } else {
         console.log("Unexpected error occurred:", error.message);
         toast.error(error.message || "An unexpected error occurred");
@@ -480,9 +502,6 @@ const CarpoolDashboard = () => {
       console.log("Search process completed");
     }
   };
-
-
-
 
   // Handler for canceling a ride offering
   const handleCancelRide = async (rideId: string) => {
@@ -557,32 +576,56 @@ const CarpoolDashboard = () => {
     }
   };
 
+  // Update the API base URL at the top of the file
+  const API_BASE_URL = "http://localhost:5050/api/carpool";
+
+  // Update the handleBookRide function to use the correct API endpoint:
   const handleBookRide = async (rideId: string) => {
     try {
-      // Use the API abstraction instead of direct axios call
-      const response = await carpoolAPI.bookRide(rideId);
-
-      if (response.data.success) {
-        toast.success(response.data.message);
-
-        // Update UI state
-        setSearchResults(prev =>
-          prev.map(ride =>
-            ride.id === rideId ? {
-              ...ride,
-              availableSeats: ride.availableSeats - 1
-            } : ride
-          ).filter(r => r.availableSeats > 0)
-        );
-
-        // Refresh data
-        fetchUserRides(userData.token);
-        document.querySelector('[value="myRides"]')?.click();
+      if (!userData?.token) {
+        toast.error("User is not authenticated.");
+        return;
       }
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || "Booking failed";
+
+      console.log("Attempting to book ride with ID:", rideId);
+
+      const response = await axios.post(
+        `${API_BASE_URL}/rides/${rideId}/book`,  // Updated URL to use API_BASE_URL
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${userData.token}`,
+          },
+        }
+      );
+
+      console.log("Ride booked successfully!");
+      toast.success("Ride booked successfully!");
+
+      // Refresh booked rides
+      await fetchUserRides(userData.token);
+
+      if (showResults) {
+        setSearchResults((prevResults) =>
+          prevResults
+            .map((ride) =>
+              ride._id === rideId
+                ? { ...ride, availableSeats: ride.availableSeats - 1 }
+                : ride
+            )
+            .filter((ride) => ride.availableSeats > 0)
+        );
+      }
+
+      // Switch to My Rides tab
+      const myRidesTab = document.querySelector('[value="myRides"]');
+      if (myRidesTab instanceof HTMLElement) {
+        myRidesTab.click();
+      }
+    } catch (error: any) {
+      console.error("Error booking ride:", error);
+      const errorMessage = error.response?.data?.message || "Failed to book ride";
       toast.error(errorMessage);
-      console.error("Booking error:", error);
     }
   };
 
@@ -974,11 +1017,11 @@ const CarpoolDashboard = () => {
                       </h3>
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {searchResults.length > 0 ? (
-                          searchResults.map((ride, index) => (
+                          searchResults.map((ride) => (
                             <RideCard
                               key={ride.id}
                               ride={ride}
-                              index={index}
+                              index={searchResults.indexOf(ride)}
                               onBookRide={() => handleBookRide(ride.id)}
                             />
                           ))

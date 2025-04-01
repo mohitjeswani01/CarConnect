@@ -184,13 +184,11 @@ exports.bookRide = async (req, res, next) => {
     });
 
   } catch (err) {
-    console.error("Booking error:", err);
-    res.status(500).json({
-      success: false,
-      message: err.message || "Internal server error"
-    });
+    console.error("Error booking ride:", err);
+    next(err);  // Pass the error to the global error handler
   }
 };
+
 
 // @desc    Get user rides (booked by user)
 // @route   GET /api/carpool/user-rides
