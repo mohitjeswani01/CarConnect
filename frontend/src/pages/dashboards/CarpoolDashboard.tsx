@@ -670,6 +670,7 @@ const CarpoolDashboard = () => {
                           </h3>
                           <div className="space-y-4">
                             {postedRides.map((ride) => (
+                              console.log(ride),
                               <div
                                 key={ride.id}
                                 className="bg-white dark:bg-gray-800 rounded-xl shadow p-6"
@@ -705,6 +706,15 @@ const CarpoolDashboard = () => {
                                         />
                                         <span>
                                           {ride.availableSeats} seats available
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center">
+                                        <Users
+                                          size={16}
+                                          className="mr-1 text-muted-foreground"
+                                        />
+                                        <span>
+                                          {ride.availableSeats} message:-
                                         </span>
                                       </div>
                                     </div>
