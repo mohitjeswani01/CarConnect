@@ -47,7 +47,7 @@ const LocationSearch = ({ onLocationSelect }) => {
 
     return (
         <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto', padding: '20px', backgroundColor: '#f9f9f6', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>
-            <h3 style={{ fontSize: '24px', color: '#333', marginBottom: '20px' }}>Search Location</h3>
+            <h3 style={{ fontSize: '16px', color: '#333', marginBottom: '20px' }}>Search Location</h3>
 
             <input
                 type="text"
