@@ -167,7 +167,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             return true;
         } catch (error: any) {
-            console.error('Registration error:', error);
+            console.error('Registration error:');
             toast.error('Registration failed', {
                 description: error.userMessage || 'Please check your information and try again.'
             });

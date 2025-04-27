@@ -49,7 +49,7 @@ const App = () => (
                                 path="/booking-form/:carId"
                                 element={<BookingForm carId={""} pricePerDay={0} withDriver={false} onSubmit={function (bookingData: { carId: string; numberOfDays: number; totalAmount: number; withDriver: boolean; }): Promise<void> {
                                     throw new Error("Function not implemented.");
-                                } } />}
+                                }} />}
                             />
 
                             {/* Dashboard Routes */}
@@ -68,3 +68,21 @@ const App = () => (
 );
 
 export default App;
+// import React from 'react';
+// import LocationSearch from '@/Locationsearch'; // Ensure correct path
+
+// const App = () => {
+//     const handleLocationSelect = (locations) => {
+//         console.log("Selected Locations:", locations);
+//     };
+
+//     return (
+//         <div style={{ textAlign: 'center', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+//             <h1 style={{ color: '#333', marginBottom: '20px' }}>Location Search App</h1>
+//             <LocationSearch onLocationSelect={handleLocationSelect} />
+//         </div>
+//     );
+// };
+
+// export default App;
+

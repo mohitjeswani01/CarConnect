@@ -6,7 +6,6 @@ import {
   Car,
   Users,
   DollarSign,
-  MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +19,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import API, { carpoolAPI } from "@/services/api";
+import LocationSearch from "@/Locationsearch";
 
 interface PostRideFormProps {
   onSubmit: (rideData: any) => Promise<void>;
@@ -52,6 +51,15 @@ const PostRideForm: React.FC<PostRideFormProps> = ({ onSubmit }) => {
     }));
   };
 
+  const handleLocationSelect = (location: any, type?: 'from' | 'to') => {
+    if (type) {
+      setFormData(prev => ({
+        ...prev,
+        [type]: location.display_name
+      }));
+    }
+  };
+
   const handleTimePeriodChange = (period: "AM" | "PM") => {
     setFormData((prev) => ({
       ...prev,
@@ -68,12 +76,17 @@ const PostRideForm: React.FC<PostRideFormProps> = ({ onSubmit }) => {
     };
     console.log(submissionData);
 
-    const res = await carpoolAPI.postRide(submissionData);
-    console.log(res.data);
-
-    toast.success("Ride posted successfully!", {
-      description: "Your ride is now visible to potential passengers.",
-    });
+    try {
+      await onSubmit(submissionData);
+      toast.success("Ride posted successfully!", {
+        description: "Your ride is now visible to potential passengers.",
+      });
+    } catch (error) {
+      console.error("Error posting ride:", error);
+      toast.error("Failed to post ride", {
+        description: "Please try again later.",
+      });
+    }
   };
 
   return (
@@ -88,32 +101,22 @@ const PostRideForm: React.FC<PostRideFormProps> = ({ onSubmit }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="from">From</Label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="from"
-                placeholder="Starting location"
-                className="pl-10 premium-input"
-                required
-                value={formData.from}
-                onChange={handleChange}
-              />
-            </div>
+            <LocationSearch
+              onLocationSelect={handleLocationSelect}
+              placeholder="Starting location"
+              type="from"
+              value={formData.from}
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="to">To</Label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="to"
-                placeholder="Destination"
-                className="pl-10 premium-input"
-                required
-                value={formData.to}
-                onChange={handleChange}
-              />
-            </div>
+            <LocationSearch
+              onLocationSelect={handleLocationSelect}
+              placeholder="Destination"
+              type="to"
+              value={formData.to}
+            />
           </div>
         </div>
 
